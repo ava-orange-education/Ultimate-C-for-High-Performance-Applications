@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ReaderWriterUpgradeable")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f14b9fa71d7adacc0154e70285a2b0156b323726")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d354889f4ac45f656ff3b0fd829db623f5ae334b")]
 [assembly: System.Reflection.AssemblyProductAttribute("ReaderWriterUpgradeable")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ReaderWriterUpgradeable")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

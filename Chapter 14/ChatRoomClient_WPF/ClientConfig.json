@@ -1,0 +1,6 @@
+{
+  "ServiceConfig": {
+    "Host": "localhost",
+    "Port": 5030
+  }
+}
