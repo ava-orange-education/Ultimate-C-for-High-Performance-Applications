@@ -7,5 +7,5 @@ public interface IWebSocketsClient
 
     Task ConnectAsync(Guid userId, CancellationToken cancellationToken);
     Task DisconnectAsync(CancellationToken cancellationToken);
-    Task SendMessageAsync(ChatMessageReceived message, CancellationToken cancellationToken);
+    Task SendMessageAsync(ChatMessageReceivedEvent message, CancellationToken cancellationToken);
 }

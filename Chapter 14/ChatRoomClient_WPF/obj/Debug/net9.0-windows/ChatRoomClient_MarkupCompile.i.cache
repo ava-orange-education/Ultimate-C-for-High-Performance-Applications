@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NET9_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\mcjef\source\repos\ChatRooms\ChatRoomClient_WPF\App.xaml
-8-165544619
+11-1479065669
 
-362093031325
-2211235943983
-Resources\Themes\Button.xaml;Resources\Themes\ColorsCommon.xaml;Resources\Themes\ColorsDark.xaml;Resources\Themes\ColorsLight.xaml;Resources\Themes\TextBox.xaml;Views\AddUsersPopup.xaml;Views\CreateRoomPopup.xaml;Views\MainWindow.xaml;
+45-898538733
+222-501293032
+Resources\Themes\Button.xaml;Resources\Themes\ColorsCommon.xaml;Resources\Themes\ColorsDark.xaml;Resources\Themes\ColorsLight.xaml;Resources\Themes\TextBox.xaml;Views\AddUsersPopup.xaml;Views\ChatRoomsPanel.xaml;Views\CreateRoomPopup.xaml;Views\MainWindow.xaml;Views\MessagesPanel.xaml;Views\UsersPanel.xaml;
 
 True
 

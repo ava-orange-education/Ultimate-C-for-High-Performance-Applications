@@ -1,6 +1,7 @@
 ﻿using ChatRoomClient.Interfaces;
 using Microsoft.Extensions.Logging;
 using SharedContracts;
+using SharedContracts.Commands;
 using SharedContracts.Events;
 using SharedContracts.Responses;
 using System.Collections.Concurrent;
@@ -12,9 +13,11 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
 {
     private readonly ConcurrentDictionary<Guid, ChatRoom> chatRooms = new();
     private readonly List<UserInfo> emptyUsers = [];
-    private readonly List<ChatMessageReceived> emptyMessages = [];
+    private readonly List<ChatMessageReceivedEvent> emptyMessages = [];
 
     public UserInfo? ChatUser { get; private set; }
+
+    public Guid? SelectedChatRoomId { get; set; }
 
     public async Task LoginAsync(string userName)
     {
@@ -61,7 +64,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
         var room = new ChatRoom(name, id);
         if (localAdd)
         {
-            var roomCreated = new RoomCreated(id, name, [ChatUser!.UserId]);
+            var roomCreated = new CreateRoomCommand(id, name, [ChatUser!.UserId]);
             await chatRoomApiClient.CreateRoomAsync(roomCreated, CancellationToken.None);
             room.AddUser(ChatUser!);
         }
@@ -75,7 +78,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
         chatRooms.TryRemove(id, out _);
     }
 
-    public async Task<ChatMessageReceived?> AddMessageAsync(Guid roomId, string message)
+    public async Task<ChatMessageReceivedEvent?> AddMessageAsync(Guid roomId, string message)
     {
         var user = ChatUser!;
 
@@ -83,7 +86,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
 
         if (chatRooms.TryGetValue(roomId, out var room))
         {
-            var chatMessageReceived = new ChatMessageReceived(user,
+            var chatMessageReceived = new ChatMessageReceivedEvent(user,
                 roomId,
                 Guid.NewGuid(),
                 DateTimeOffset.Now,
@@ -97,7 +100,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
         return null;
     }
 
-    public void ReceiveMessage(ChatMessageReceived message)
+    public void ReceiveMessage(ChatMessageReceivedEvent message)
     {
         logger.LogDebug("RECEIVE MESSAGE {message}", message);
 
@@ -116,7 +119,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
 
         if (chatRooms.TryGetValue(roomId, out var room))
         {
-            var userAddedToRoom = new UserAddedToRoom(roomId, ChatUser!.UserId, [.. users.Select(u => u.UserId)]);
+            var userAddedToRoom = new AddUserToRoomCommand(roomId, ChatUser!.UserId, [.. users.Select(u => u.UserId)]);
 
             await chatRoomApiClient.AddUserToRoomAsync(userAddedToRoom, CancellationToken.None);
 
@@ -145,7 +148,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
         {
             if (addedLocally)
             {
-                var userRemovedFromRoom = new UserRemovedFromRoom(roomId, userId, ChatUser!.UserId);
+                var userRemovedFromRoom = new RemoveUserFromRoomCommand(roomId, userId, ChatUser!.UserId);
                 await chatRoomApiClient.RemoveUserFromRoomAsync(userRemovedFromRoom, CancellationToken.None);
             }
             room.RemoveUser(userId);
@@ -163,7 +166,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
         return emptyUsers;
     }
 
-    public IEnumerable<ChatMessageReceived> GetMessages(Guid roomId)
+    public IEnumerable<ChatMessageReceivedEvent> GetMessages(Guid roomId)
     {
         logger.LogDebug("GET MESSAGES {roomId}", roomId);
 

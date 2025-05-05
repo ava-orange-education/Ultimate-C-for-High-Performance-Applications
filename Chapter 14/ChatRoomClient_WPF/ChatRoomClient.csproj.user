@@ -5,7 +5,16 @@
     <Compile Update="Views\AddUsersPopup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\ChatRoomsPanel.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\CreateRoomPopup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\MessagesPanel.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\UsersPanel.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -1,5 +1,5 @@
-﻿using ChatRoomServer.Events;
-using MediatR;
+﻿using MediatR;
+using SharedContracts.Commands;
 using SharedContracts.Enums;
 using SharedContracts.Messaging;
 using System.Net.WebSockets;
@@ -84,9 +84,22 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
 
                     logger.LogDebug("Publishing message: {message}", message);
 
-                    await mediator.Publish(
-                        message!,
-                        readerCts.Token);
+                    if (message is INotification)
+                    {
+                        await mediator.Publish(
+                            message!,
+                            readerCts.Token);
+                    }
+                    else if (message is IBaseRequest)
+                    {
+                        await mediator.Send(
+                            message!,
+                            readerCts.Token);
+                    }
+                    else
+                    {
+                        logger.LogWarning("Message is not a valid notification: {message}", message);
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -183,7 +196,7 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
     {
         return messageType switch
         {
-            MessageType.ChatMessage => typeof(ChatMessageReceivedEvent),
+            MessageType.ChatMessage => typeof(SendChatMessageCommand),
             _ => throw new ArgumentOutOfRangeException(nameof(messageType), $"Unhandled message type: {messageType}")
         };
     }

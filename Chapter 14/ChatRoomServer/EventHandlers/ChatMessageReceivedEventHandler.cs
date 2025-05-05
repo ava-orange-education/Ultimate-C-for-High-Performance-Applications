@@ -1,13 +1,14 @@
-﻿using ChatRoomServer.Events;
-using ChatRoomServer.Interfaces;
+﻿using ChatRoomServer.Interfaces;
 using MediatR;
+using SharedContracts.Events;
 
 namespace ChatRoomServer.EventHandlers;
 
-public class ChatMessageReceivedEventHandler(IChatRoomStore chatRoomStore) : INotificationHandler<ChatMessageReceivedEvent>
+public class ChatMessageReceivedEventHandler(IChatRoomStore chatRoomStore, IBroadcastService broadcastService) : INotificationHandler<ChatMessageReceivedEvent>
 {
     public async Task Handle(ChatMessageReceivedEvent notification, CancellationToken cancellationToken)
     {
-        await chatRoomStore.ReceiveMessageAsync(notification);
+        var roomUsers = chatRoomStore.GetRoomUsers(notification.RoomId, notification.User.UserId);
+        await broadcastService.BroadcastReceivedMessageAsync(roomUsers, notification);
     }
 }

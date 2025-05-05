@@ -65,11 +65,11 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
         }
     }
 
-    public async Task SendMessageAsync(ChatMessageReceived message, CancellationToken cancellationToken)
+    public async Task SendMessageAsync(ChatMessageReceivedEvent message, CancellationToken cancellationToken)
     {
         if (IsOpen)
         {
-            var envelope = new Envelope<ChatMessageReceived>(MessageType.ChatMessage, message);
+            var envelope = new Envelope<ChatMessageReceivedEvent>(MessageType.ChatMessage, message);
             var json = JsonSerializer.Serialize(envelope, jsonSerializerOptions);
             logger.LogDebug("Sending message: {Message}", json);
 
@@ -156,7 +156,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
     {
         return messageType switch
         {
-            MessageType.ChatMessage => typeof(ChatMessageReceived),
+            MessageType.ChatMessage => typeof(ChatMessageReceivedEvent),
             MessageType.UserJoinedChatNotification => typeof(UserJoinedChatNotification),
             MessageType.UserLeftChatNotification => typeof(UserLeftChatNotification),
             _ => throw new ArgumentOutOfRangeException(nameof(messageType), $"Unhandled message type: {messageType}")
@@ -173,7 +173,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
 
         switch (message)
         {
-            case ChatMessageReceived chatMessage:
+            case ChatMessageReceivedEvent chatMessage:
                 messenger.Publish(chatMessage);
                 break;
             case UserJoinedChatNotification userJoined:

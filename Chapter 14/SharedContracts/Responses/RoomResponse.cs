@@ -6,7 +6,7 @@ namespace SharedContracts.Responses;
 public class RoomResponse
 {
     [JsonConstructor]
-    public RoomResponse(Guid roomId, string roomName, List<UserInfo> roomUsers, List<ChatMessageReceived> messages)
+    public RoomResponse(Guid roomId, string roomName, List<UserInfo> roomUsers, List<ChatMessageReceivedEvent> messages)
     {
         RoomId = roomId;
         RoomName = roomName;
@@ -19,5 +19,5 @@ public class RoomResponse
 
     public List<UserInfo> RoomUsers { get; }
 
-    public List<ChatMessageReceived> Messages { get; }
+    public List<ChatMessageReceivedEvent> Messages { get; }
 }

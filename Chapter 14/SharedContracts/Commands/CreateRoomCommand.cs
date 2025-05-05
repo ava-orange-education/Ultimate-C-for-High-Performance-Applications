@@ -1,11 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using MediatR;
+using System.Text.Json.Serialization;
 
-namespace SharedContracts.Events;
+namespace SharedContracts.Commands;
 
-public class RoomCreated
+public class CreateRoomCommand : IRequest<Unit>
 {
     [JsonConstructor]
-    public RoomCreated(Guid roomId, string roomName, Guid[] userIds)
+    public CreateRoomCommand(Guid roomId, string roomName, Guid[] userIds)
     {
         RoomId = roomId;
         RoomName = roomName;

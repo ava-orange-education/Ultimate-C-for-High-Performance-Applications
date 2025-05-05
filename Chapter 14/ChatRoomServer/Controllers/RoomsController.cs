@@ -1,7 +1,7 @@
-﻿using ChatRoomServer.Events;
-using ChatRoomServer.Queries;
+﻿using ChatRoomServer.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedContracts.Commands;
 using SharedContracts.Responses;
 
 namespace ChatRoomServer.Controllers;
@@ -20,21 +20,21 @@ public class RoomsController(ILogger<RoomsController> logger, IMediator mediator
     }
 
     [HttpPost]
-    public Task CreateRoom([FromBody] RoomCreatedEvent roomCreatedEvent, CancellationToken cancellationToken)
+    public Task CreateRoom([FromBody] CreateRoomCommand createRoomCommand, CancellationToken cancellationToken)
     {
-        logger.LogDebug("CreateRoom called with room name: {roomName}, room id: {roomId}", roomCreatedEvent.RoomName, roomCreatedEvent.RoomId);
+        logger.LogDebug("CreateRoom called with room name: {roomName}, room id: {roomId}", createRoomCommand.RoomName, createRoomCommand.RoomId);
 
-        return mediator.Publish(roomCreatedEvent, cancellationToken);
+        return mediator.Send(createRoomCommand, cancellationToken);
     }
 
     [HttpPut]
-    public async Task<IActionResult> AddUserToRoom([FromBody] UserAddedToRoomEvent userAddedToRoomEvent, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddUserToRoom([FromBody] AddUserToRoomCommand addUserToRoomCommand, CancellationToken cancellationToken)
     {
-        logger.LogDebug("AddUserToRoom called with room id: {roomId}, user ids: {userIds}", userAddedToRoomEvent.RoomId, string.Join(", ", userAddedToRoomEvent.AddedUserIds));
+        logger.LogDebug("AddUserToRoom called with room id: {roomId}, user ids: {userIds}", addUserToRoomCommand.RoomId, string.Join(", ", addUserToRoomCommand.AddedUserIds));
 
         try
         {
-            await mediator.Publish(userAddedToRoomEvent, cancellationToken);
+            await mediator.Send(addUserToRoomCommand, cancellationToken);
             return Ok();
         }
         catch (InvalidOperationException ex)
@@ -47,12 +47,12 @@ public class RoomsController(ILogger<RoomsController> logger, IMediator mediator
     [HttpDelete]
     public Task RemoveUserFromRoom([FromQuery] Guid userId, [FromQuery] Guid roomId, [FromQuery] Guid senderId, CancellationToken cancellationToken)
     {
-        var userRemovedFromRoomEvent = new UserRemovedFromRoomEvent(roomId, userId, senderId);
+        var removeUserFromRoomCommand = new RemoveUserFromRoomCommand(roomId, userId, senderId);
         logger.LogDebug("RemoveUserFromRoom called with room id: {roomId}, user id: {userId}, sender id: {senderId}",
-            userRemovedFromRoomEvent.RoomId,
-            userRemovedFromRoomEvent.UserId,
-            userRemovedFromRoomEvent.SenderId);
+            removeUserFromRoomCommand.RoomId,
+            removeUserFromRoomCommand.RemovedUserId,
+            removeUserFromRoomCommand.SenderId);
 
-        return mediator.Publish(userRemovedFromRoomEvent, cancellationToken);
+        return mediator.Send(removeUserFromRoomCommand, cancellationToken);
     }
 }

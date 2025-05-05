@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 namespace ChatRoomClient.Models;
 public class ChatRoom(string name, Guid id)
 {
-    private readonly ConcurrentDictionary<Guid, ChatMessageReceived> messages = new();
+    private readonly ConcurrentDictionary<Guid, ChatMessageReceivedEvent> messages = new();
     private readonly ConcurrentDictionary<Guid, UserInfo> users = new();
 
     public string Name { get; } = name;
@@ -28,13 +28,13 @@ public class ChatRoom(string name, Guid id)
         users.TryRemove(userId, out _);
     }
 
-    public void AddMessage(ChatMessageReceived message)
+    public void AddMessage(ChatMessageReceivedEvent message)
     {
         ArgumentNullException.ThrowIfNull(message);
         messages.TryAdd(message.Id, message);
     }
 
-    public IEnumerable<ChatMessageReceived> GetMessages()
+    public IEnumerable<ChatMessageReceivedEvent> GetMessages()
     {
         return messages.Values;
     }

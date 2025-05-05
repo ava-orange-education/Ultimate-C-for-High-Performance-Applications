@@ -1,12 +1,7 @@
-﻿
-using System.Text.Json.Serialization;
-
-namespace SharedContracts.Events;
-
-public class ChatMessageReceived
+﻿namespace SharedContracts;
+public class ChatMessage
 {
-    [JsonConstructor]
-    public ChatMessageReceived(UserInfo user, Guid roomId, Guid id, DateTimeOffset timestamp, string message)
+    public ChatMessage(UserInfo user, Guid roomId, Guid id, DateTimeOffset timestamp, string message)
     {
         User = user;
         RoomId = roomId;

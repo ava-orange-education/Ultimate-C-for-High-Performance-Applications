@@ -1,6 +1,6 @@
 ﻿using ChatRoomClient.Interfaces;
 using SharedContracts;
-using SharedContracts.Events;
+using SharedContracts.Commands;
 using SharedContracts.Responses;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -18,21 +18,21 @@ public class ChatRoomApiClient(HttpClient httpClient) : IChatRoomApiClient
         return rooms!;
     }
 
-    public async Task CreateRoomAsync(RoomCreated roomCreated, CancellationToken cancellationToken)
+    public async Task CreateRoomAsync(CreateRoomCommand roomCreated, CancellationToken cancellationToken)
     {
         var response = await httpClient.PostAsJsonAsync("api/rooms", roomCreated, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task AddUserToRoomAsync(UserAddedToRoom userAddedToRoom, CancellationToken cancellationToken)
+    public async Task AddUserToRoomAsync(AddUserToRoomCommand userAddedToRoom, CancellationToken cancellationToken)
     {
         var response = await httpClient.PutAsJsonAsync("api/rooms", userAddedToRoom, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task RemoveUserFromRoomAsync(UserRemovedFromRoom userRemovedFromRoom, CancellationToken cancellationToken)
+    public async Task RemoveUserFromRoomAsync(RemoveUserFromRoomCommand userRemovedFromRoom, CancellationToken cancellationToken)
     {
-        var response = await httpClient.DeleteAsync($"api/rooms?userId={HttpEncode(userRemovedFromRoom.UserId.ToString())}&roomId={HttpEncode(userRemovedFromRoom.RoomId.ToString())}&senderId={HttpEncode(userRemovedFromRoom.SenderId.ToString())}", cancellationToken);
+        var response = await httpClient.DeleteAsync($"api/rooms?userId={HttpEncode(userRemovedFromRoom.RemovedUserId.ToString())}&roomId={HttpEncode(userRemovedFromRoom.RoomId.ToString())}&senderId={HttpEncode(userRemovedFromRoom.SenderId.ToString())}", cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 

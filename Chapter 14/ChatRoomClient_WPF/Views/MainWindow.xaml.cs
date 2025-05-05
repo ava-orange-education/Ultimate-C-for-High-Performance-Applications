@@ -8,18 +8,9 @@ namespace ChatRoomClient.Views;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private readonly IMessenger messenger;
-
     public MainWindow(MainWindowViewModel mainWindowViewModel, IMessenger messenger)
     {
         InitializeComponent();
         DataContext = mainWindowViewModel;
-        this.messenger = messenger;
-        messenger.Subscribe<ScrollMessagesToBottomMessage>(OnScrollMessagesToBottom);
-    }
-
-    private void OnScrollMessagesToBottom(ScrollMessagesToBottomMessage message)
-    {
-        MessagesScrollViewer.ScrollToEnd();
     }
 }

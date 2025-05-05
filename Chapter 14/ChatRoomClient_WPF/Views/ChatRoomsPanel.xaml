@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="ChatRoomClient.Views.ChatRoomsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:ChatRoomClient.ViewModels"
+             xmlns:views="clr-namespace:ChatRoomClient.Views"
+             xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChatRoomsPanelViewModel}">
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="ChatRoomsViewSource" Source="{Binding ChatRoomsList}">
+            <CollectionViewSource.SortDescriptions>
+                <componentmodel:SortDescription PropertyName="Name" Direction="Ascending" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
+
+        <Border Background="{DynamicResource LightBackground}" Padding="10" BorderBrush="{DynamicResource BorderBrushColor}" BorderThickness="0,0,1,0" CornerRadius="8">
+        <DockPanel LastChildFill="True">
+            <Button x:Name="CreateRoomButton" Content="+ Create Room" Height="40" Margin="0,0,0,10" DockPanel.Dock="Top" Command="{Binding CreateChatRoomCommand}"/>
+            <Popup PlacementTarget="{Binding ElementName=CreateRoomButton}" Placement="Bottom" StaysOpen="False" IsOpen="{Binding IsCreateRoomPopupOpen}">
+                <views:CreateRoomPopup />
+            </Popup>
+            <ListBox x:Name="ChatRoomsList" Background="Transparent" BorderThickness="0"
+                     ItemsSource="{Binding Source={StaticResource ChatRoomsViewSource}}"
+                     SelectedItem="{Binding SelectedChatRoom}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" FontWeight="{Binding FontWeight}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Border>
+</UserControl>

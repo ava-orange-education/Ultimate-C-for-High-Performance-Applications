@@ -4,10 +4,16 @@ using MediatR;
 
 namespace ChatRoomServer.EventHandlers;
 
-public class UserRemovedFromRoomEventHandler(IChatRoomStore chatRoomStore) : INotificationHandler<UserRemovedFromRoomEvent>
+public class UserRemovedFromRoomEventHandler(IChatRoomStore chatRoomStore, IBroadcastService broadcastService) : INotificationHandler<UserRemovedFromRoomEvent>
 {
-    public async Task Handle(UserRemovedFromRoomEvent notification, CancellationToken cancellationToken)
+    public Task Handle(UserRemovedFromRoomEvent notification, CancellationToken cancellationToken)
     {
-        await chatRoomStore.RemoveUserAsync(notification.RoomId, notification.UserId, notification.SenderId);
+        ArgumentNullException.ThrowIfNull(notification, nameof(notification));
+
+        //Notify all users except the sender that the user has left the room
+        var existingUserIds = chatRoomStore.GetRoomUsers(notification.RoomId, notification.SenderId);
+        return broadcastService.BroadcastUserLeftChatNotificationAsync(notification.RoomId,
+            notification.RemovedUserId,
+            existingUserIds);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SharedContracts.Events;
 
 namespace ChatRoomClient.ViewModels;
-public class UserMessageViewModel(bool IsOwnMessage, string? userName, ChatMessageReceived message)
+public class UserMessageViewModel(bool IsOwnMessage, string? userName, ChatMessageReceivedEvent message)
 {
     public bool IsOwnMessage { get; } = IsOwnMessage;
     public string? UserName => userName;

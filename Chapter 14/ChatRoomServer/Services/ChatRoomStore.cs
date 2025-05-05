@@ -1,38 +1,45 @@
-﻿using ChatRoomServer.Events;
-using ChatRoomServer.Interfaces;
+﻿using ChatRoomServer.Interfaces;
+using SharedContracts;
+using SharedContracts.Commands;
 using System.Collections.Concurrent;
 
 namespace ChatRoomServer.Services;
 
-public class ChatRoomStore(IUserSocketService socketService, IUserStore userStore) : IChatRoomStore
+public class ChatRoomStore : IChatRoomStore
 {
     private readonly ConcurrentDictionary<Guid, ChatRoom> chatRooms = new();
 
     public void CreateRoom(Guid roomId, string roomName, IEnumerable<Guid> userIds)
     {
-        var chatRoom = new ChatRoom(socketService, roomName);
+        var chatRoom = new ChatRoom(roomName);
         chatRoom.CreateRoom(roomId, userIds);
         chatRooms.TryAdd(roomId, chatRoom);
     }
 
-    public async Task AddUserAsync(Guid roomId, Guid senderId, Guid userId)
+    public void AddUser(Guid roomId, Guid userIdToAdd)
     {
         if (chatRooms.TryGetValue(roomId, out var chatRoom))
         {
-            var userInfo = userStore.GetUser(userId) ?? throw new ArgumentException($"User with ID {userId} does not exist.");
-            await chatRoom.AddUserAsync(senderId, userInfo);
+            chatRoom.AddUser(userIdToAdd);
+        }
+        else
+        {
+            throw new InvalidOperationException($"Room id not found during add user: {roomId}");
         }
     }
 
-    public async Task RemoveUserAsync(Guid roomId, Guid userId, Guid senderId)
+    public bool RemoveUser(Guid roomId, Guid userId, Guid senderId)
     {
         if (chatRooms.TryGetValue(roomId, out var chatRoom))
         {
-            if (await chatRoom.RemoveUserAsync(userId, senderId))
+            if (chatRoom.RemoveUser(userId, senderId))
             {
                 chatRooms.TryRemove(roomId, out _);
+                return false;
             }
+            return true;
         }
+        throw new InvalidOperationException($"Room id not found during remove user: {roomId}");
     }
 
     public IEnumerable<ChatRoom> GetAllRooms()
@@ -45,11 +52,30 @@ public class ChatRoomStore(IUserSocketService socketService, IUserStore userStor
         return chatRooms.Values.Where(room => room.ContainsUser(userId));
     }
 
-    public async Task ReceiveMessageAsync(ChatMessageReceivedEvent message)
+    public IEnumerable<ChatMessage> GetRoomMessages(Guid roomId)
+    {
+        if (chatRooms.TryGetValue(roomId, out var chatRoom))
+        {
+            return chatRoom.GetMessages();
+        }
+        throw new InvalidOperationException($"Room id not found during get messages: {roomId}");
+    }
+
+    public IEnumerable<Guid> GetRoomUsers(Guid roomId, Guid exceptUserId)
+    {
+        if (chatRooms.TryGetValue(roomId, out var chatRoom))
+        {
+            return chatRoom.GetUserIds(exceptUserId);
+        }
+        throw new InvalidOperationException($"Room id not found during get room users: {roomId}");
+    }
+
+    public bool StoreMessage(SendChatMessageCommand message)
     {
         if (chatRooms.TryGetValue(message.RoomId, out var chatRoom))
         {
-            await chatRoom.ReceiveMessageAsync(message);
+            return chatRoom.StoreMessage(message);
         }
+        throw new InvalidOperationException($"Room id not found during store message: {message.RoomId}");
     }
 }

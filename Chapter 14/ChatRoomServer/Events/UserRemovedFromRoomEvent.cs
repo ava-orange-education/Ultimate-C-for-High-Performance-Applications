@@ -1,13 +1,22 @@
 ﻿using MediatR;
-using SharedContracts.Events;
 using System.Text.Json.Serialization;
 
 namespace ChatRoomServer.Events;
 
-public class UserRemovedFromRoomEvent : UserRemovedFromRoom, INotification
+public class UserRemovedFromRoomEvent : INotification
 {
     [JsonConstructor]
-    public UserRemovedFromRoomEvent(Guid roomId, Guid userId, Guid senderId) : base(roomId, userId, senderId)
+    public UserRemovedFromRoomEvent(Guid roomId, Guid userId, Guid senderId)
     {
+        RoomId = roomId;
+        RemovedUserId = userId;
+        SenderId = senderId;
     }
+
+    public Guid RoomId { get; }
+
+    public Guid RemovedUserId { get; }
+
+    public Guid SenderId { get; }
+
 }

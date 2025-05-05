@@ -1,17 +1,14 @@
-﻿using ChatRoomServer.Events;
-using ChatRoomServer.Interfaces;
-using SharedContracts;
-using SharedContracts.Enums;
-using SharedContracts.Notifications;
+﻿using SharedContracts;
+using SharedContracts.Commands;
 using System.Collections.Concurrent;
 
 namespace ChatRoomServer.Services;
 
-public class ChatRoom(IUserSocketService socketStore, string roomName)
+public class ChatRoom(string roomName)
 {
     private Guid roomId;
     private readonly ConcurrentDictionary<Guid, byte> userIds = new();
-    private readonly ConcurrentDictionary<Guid, ChatMessageReceivedEvent> messages = new();
+    private readonly ConcurrentDictionary<Guid, ChatMessage> messages = new();
 
     public Guid RoomId => roomId;
 
@@ -19,7 +16,7 @@ public class ChatRoom(IUserSocketService socketStore, string roomName)
 
     public bool ContainsUser(Guid userId) => userIds.ContainsKey(userId);
 
-    public IEnumerable<ChatMessageReceivedEvent> GetMessages() => messages.Values;
+    public IEnumerable<ChatMessage> GetMessages() => messages.Values;
 
     public IEnumerable<Guid> GetUserIds(Guid? exceptUser)
     {
@@ -40,55 +37,25 @@ public class ChatRoom(IUserSocketService socketStore, string roomName)
         }
     }
 
-    public async Task AddUserAsync(Guid senderId, UserInfo userInfo)
+    public bool AddUser(Guid userIdToAdd)
     {
-        if (userIds.TryAdd(userInfo.UserId, 0))
-        {
-            var notification = new UserJoinedChatNotification(roomId, userInfo);
-            foreach (var existingUser in userIds.Keys.Where(uid => uid != senderId))
-            {
-                await socketStore.QueueMessageAsync(existingUser,
-                    MessageType.UserJoinedChatNotification,
-                    notification);
-            }
-
-            foreach (var message in messages)
-            {
-                await socketStore.QueueMessageAsync(userInfo.UserId,
-                    MessageType.ChatMessage,
-                    message.Value);
-            }
-        }
+        return userIds.TryAdd(userIdToAdd, 0);
     }
 
-    public async Task<bool> RemoveUserAsync(Guid userId, Guid senderId)
+    public bool RemoveUser(Guid userId, Guid senderId)
     {
-        if (userIds.TryRemove(userId, out _))
-        {
-            var notification = new UserLeftChatNotification(roomId, userId);
-            foreach (var existingUser in userIds.Keys.Where(uid => uid != senderId))
-            {
-                await socketStore.QueueMessageAsync(existingUser,
-                    MessageType.UserLeftChatNotification,
-                    notification);
-            }
-
-            await socketStore.QueueMessageAsync(userId,
-                MessageType.UserLeftChatNotification,
-                notification);
-        }
+        _ = userIds.TryRemove(userId, out _);
 
         return userIds.IsEmpty;
     }
 
-    public async Task ReceiveMessageAsync(ChatMessageReceivedEvent message)
+    public bool StoreMessage(SendChatMessageCommand message)
     {
-        if (messages.TryAdd(message.Id, message))
-        {
-            foreach (var userId in userIds.Keys.Where(uid => message.User.UserId != uid))
-            {
-                await socketStore.QueueMessageAsync(userId, MessageType.ChatMessage, message);
-            }
-        }
+        return messages.TryAdd(message.Id, new ChatMessage(
+            message.User,
+            message.RoomId,
+            message.Id,
+            message.Timestamp,
+            message.Message));
     }
 }

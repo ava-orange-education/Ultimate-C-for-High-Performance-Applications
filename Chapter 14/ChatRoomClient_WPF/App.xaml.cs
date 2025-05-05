@@ -67,6 +67,12 @@ public partial class App : Application
         services.AddSingleton<CreateRoomViewModel>();
         services.AddSingleton<AddUsersPopup>();
         services.AddSingleton<AddUsersViewModel>();
+        services.AddSingleton<ChatRoomsPanel>();
+        services.AddSingleton<ChatRoomsPanelViewModel>();
+        services.AddSingleton<MessagesPanel>();
+        services.AddSingleton<MessagesPanelViewModel>();
+        services.AddSingleton<UsersPanel>();
+        services.AddSingleton<UsersPanelViewModel>();
         services.AddSingleton<IMessenger, Messenger>();
         services.AddSingleton<IChatRoomManagerModel, ChatRoomManagerModel>();
         services.AddSingleton<IWebSocketsClient, WebSocketsClient>();

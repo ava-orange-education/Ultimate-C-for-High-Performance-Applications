@@ -1,13 +1,20 @@
 ﻿using MediatR;
-using SharedContracts.Events;
-using System.Text.Json.Serialization;
+using SharedContracts;
 
 namespace ChatRoomServer.Events;
 
-public class UserAddedToRoomEvent : UserAddedToRoom, INotification
+public class UserAddedToRoomEvent : INotification
 {
-    [JsonConstructor]
-    public UserAddedToRoomEvent(Guid roomId, Guid senderId, Guid[] addedUserIds) : base(roomId, senderId, addedUserIds)
+    public UserAddedToRoomEvent(Guid roomId, Guid senderId, UserInfo addedUser)
     {
+        RoomId = roomId;
+        SenderId = senderId;
+        AddedUser = addedUser;
     }
+
+    public Guid RoomId { get; }
+
+    public Guid SenderId { get; }
+
+    public UserInfo AddedUser { get; }
 }

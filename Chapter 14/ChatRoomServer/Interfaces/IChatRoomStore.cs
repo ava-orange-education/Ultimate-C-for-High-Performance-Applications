@@ -1,14 +1,17 @@
-﻿using ChatRoomServer.Events;
-using ChatRoomServer.Services;
+﻿using ChatRoomServer.Services;
+using SharedContracts;
+using SharedContracts.Commands;
 
 namespace ChatRoomServer.Interfaces;
 
 public interface IChatRoomStore
 {
-    Task AddUserAsync(Guid roomId, Guid senderId, Guid userId);
+    void AddUser(Guid roomId, Guid userIdToAdd);
     void CreateRoom(Guid roomId, string roomName, IEnumerable<Guid> userIds);
     IEnumerable<ChatRoom> GetAllRooms();
+    IEnumerable<ChatMessage> GetRoomMessages(Guid roomId);
     IEnumerable<ChatRoom> GetRoomsForUser(Guid userId);
-    Task ReceiveMessageAsync(ChatMessageReceivedEvent message);
-    Task RemoveUserAsync(Guid roomId, Guid userId, Guid senderId);
+    IEnumerable<Guid> GetRoomUsers(Guid roomId, Guid exceptUserId);
+    bool RemoveUser(Guid roomId, Guid userId, Guid senderId);
+    bool StoreMessage(SendChatMessageCommand message);
 }
