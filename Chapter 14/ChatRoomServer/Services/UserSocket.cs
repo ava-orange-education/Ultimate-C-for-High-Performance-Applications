@@ -72,35 +72,7 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
             try
             {
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), readerCts.Token);
-
-                if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    logger.LogDebug("WebSocket connection closed by client: {message}", result.CloseStatusDescription);
-                    await CloseSocketConnectionAsync();
-                }
-                else if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    var message = DeserializeMessage(Encoding.UTF8.GetString(buffer, 0, result.Count));
-
-                    logger.LogDebug("Publishing message: {message}", message);
-
-                    if (message is INotification)
-                    {
-                        await mediator.Publish(
-                            message!,
-                            readerCts.Token);
-                    }
-                    else if (message is IBaseRequest)
-                    {
-                        await mediator.Send(
-                            message!,
-                            readerCts.Token);
-                    }
-                    else
-                    {
-                        logger.LogWarning("Message is not a valid notification: {message}", message);
-                    }
-                }
+                await ProcessReceivedMessageAsync(buffer, result);
             }
             catch (OperationCanceledException)
             {
@@ -120,6 +92,42 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
                     await CloseSocketConnectionAsync();
                 }
             }
+        }
+    }
+
+    private async Task ProcessReceivedMessageAsync(byte[] buffer, WebSocketReceiveResult result)
+    {
+        if (result.MessageType == WebSocketMessageType.Close)
+        {
+            logger.LogDebug("WebSocket connection closed by client: {message}", result.CloseStatusDescription);
+            await CloseSocketConnectionAsync();
+        }
+        else if (result.MessageType == WebSocketMessageType.Text)
+        {
+            var message = DeserializeMessage(Encoding.UTF8.GetString(buffer, 0, result.Count));
+
+            logger.LogDebug("Publishing message: {message}", message);
+            await PublishMessageAsync(message);
+        }
+    }
+
+    private async Task PublishMessageAsync(object? message)
+    {
+        if (message is INotification)
+        {
+            await mediator.Publish(
+                message!,
+                readerCts.Token);
+        }
+        else if (message is IBaseRequest)
+        {
+            await mediator.Send(
+                message!,
+                readerCts.Token);
+        }
+        else
+        {
+            logger.LogWarning("Message is not a valid notification: {message}", message);
         }
     }
 
