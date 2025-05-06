@@ -10,6 +10,7 @@ using SharedContracts.Notifications;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Channels;
 
 namespace ChatRoomClient.Clients;
 
@@ -19,7 +20,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
 {
     private readonly ClientWebSocket webSocket = new();
     private readonly CancellationTokenSource readerCts = new();
-    private Task receiveTask = Task.CompletedTask;
+    private readonly Channel<string> channel = Channel.CreateUnbounded<string>();
     private readonly JsonSerializerOptions jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -29,6 +30,8 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
             new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
         }
     };
+    private Task receiveTask = Task.CompletedTask;
+    private Task writeTask = Task.CompletedTask;
 
     public bool IsOpen => webSocket.State == WebSocketState.Open;
 
@@ -51,6 +54,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
         await webSocket.ConnectAsync(uriBuilder.Uri, cancellationToken);
 
         receiveTask = ReceiveMessagesAsync(readerCts.Token);
+        writeTask = WriteMessagesAsync(cancellationToken);
     }
 
     public async Task DisconnectAsync(CancellationToken cancellationToken)
@@ -62,6 +66,8 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
                 cancellationToken); // Close the connection gracefully
             readerCts.Cancel(); // Cancel the receive task
             await receiveTask; // Wait for the receive task to complete 
+            channel.Writer.Complete(); // Complete the channel writer
+            await writeTask; // Wait for the write task to complete
         }
     }
 
@@ -69,15 +75,22 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
     {
         if (IsOpen)
         {
+            if (channel.Reader.Completion.IsCompleted)
+            {
+                throw new InvalidOperationException("Channel is completed. Cannot send messages.");
+            }
+
             var envelope = new Envelope<ChatMessageReceivedEvent>(MessageType.ChatMessage, message);
             var json = JsonSerializer.Serialize(envelope, jsonSerializerOptions);
             logger.LogDebug("Sending message: {Message}", json);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(json);
-            await webSocket.SendAsync(new ArraySegment<byte>(buffer),
-                WebSocketMessageType.Text,
-                true,
-                cancellationToken);
+            if (await channel.Writer.WaitToWriteAsync(cancellationToken))
+            {
+                await channel.Writer.WriteAsync(json, cancellationToken);
+            }
+        }
+        else
+        {
+            logger.LogWarning("WebSocket is not open. Cannot send message.");
         }
     }
 
@@ -182,6 +195,22 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
             case UserLeftChatNotification userLeft:
                 messenger.Publish(userLeft);
                 break;
+        }
+    }
+
+    private async Task WriteMessagesAsync(CancellationToken cancellationToken)
+    {
+        await foreach (var message in channel.Reader.ReadAllAsync(cancellationToken))
+        {
+            logger.LogDebug("Sending message: {Message}", message);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(message);
+            if (webSocket.State == WebSocketState.Open)
+            {
+                await webSocket.SendAsync(new ArraySegment<byte>(buffer),
+                    WebSocketMessageType.Text,
+                    true,
+                    cancellationToken);
+            }
         }
     }
 }
