@@ -56,7 +56,7 @@ public class MainWindowViewModel : ViewModelBase
     private async void ConfirmChatUserName()
     {
         await communicationHelper
-            .ExecuteRequestAsync(() => chatRoomManagerModel.LoginAsync(ChatUserName!));
+            .ExecuteAsync(() => chatRoomManagerModel.LoginAsync(ChatUserName!));
         IsLoggedIn = true;
         ChatUserName = null;
 
@@ -70,7 +70,7 @@ public class MainWindowViewModel : ViewModelBase
     private async void Logout()
     {
         await communicationHelper
-            .ExecuteRequestAsync(chatRoomManagerModel.LogoutAsync);
+            .ExecuteAsync(chatRoomManagerModel.LogoutAsync);
     }
     #endregion
 }

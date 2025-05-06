@@ -7,6 +7,7 @@ using SharedContracts.Responses;
 using System.Collections.Concurrent;
 
 namespace ChatRoomClient.Models;
+
 public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
     IChatRoomApiClient chatRoomApiClient,
     IWebSocketsClient webSocketsClient) : IChatRoomManagerModel
@@ -86,13 +87,19 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
 
         if (chatRooms.TryGetValue(roomId, out var room))
         {
-            var chatMessageReceived = new ChatMessageReceivedEvent(user,
+            var sendChatMessageCommand = new SendChatMessageCommand(user,
                 roomId,
                 Guid.NewGuid(),
                 DateTimeOffset.Now,
                 message);
 
-            await webSocketsClient.SendMessageAsync(chatMessageReceived, CancellationToken.None);
+            await webSocketsClient.SendMessageAsync(sendChatMessageCommand, CancellationToken.None);
+
+            var chatMessageReceived = new ChatMessageReceivedEvent(sendChatMessageCommand.User,
+                sendChatMessageCommand.RoomId,
+                sendChatMessageCommand.Id,
+                sendChatMessageCommand.Timestamp,
+                sendChatMessageCommand.Message);
 
             room.AddMessage(chatMessageReceived);
             return chatMessageReceived;

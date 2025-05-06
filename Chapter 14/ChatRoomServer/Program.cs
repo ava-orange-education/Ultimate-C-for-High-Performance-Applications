@@ -1,3 +1,4 @@
+using ChatRoomServer.ErrorHandlers;
 using ChatRoomServer.Interfaces;
 using ChatRoomServer.Services;
 using SharedContracts.Commands;
@@ -23,10 +24,14 @@ builder.Services.AddSingleton<IChatRoomStore, ChatRoomStore>();
 //Services that do not store state are registered as transient
 builder.Services.AddTransient<IBroadcastService, BroadcastService>();
 
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 app.UseWebSockets();
 app.UseRouting();
 app.MapControllers();
+app.UseExceptionHandler();
 
 await app.RunAsync();

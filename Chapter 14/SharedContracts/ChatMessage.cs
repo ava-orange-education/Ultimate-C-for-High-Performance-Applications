@@ -1,22 +1,16 @@
-﻿namespace SharedContracts;
-public class ChatMessage
+﻿using SharedContracts.Messaging;
+
+namespace SharedContracts;
+
+public class ChatMessage(UserInfo user, Guid roomId, Guid id, DateTimeOffset timestamp, string message) : MessageBase
 {
-    public ChatMessage(UserInfo user, Guid roomId, Guid id, DateTimeOffset timestamp, string message)
-    {
-        User = user;
-        RoomId = roomId;
-        Id = id;
-        Timestamp = timestamp;
-        Message = message;
-    }
+    public UserInfo User { get; } = user;
 
-    public UserInfo User { get; }
+    public Guid RoomId { get; } = roomId;
 
-    public Guid RoomId { get; }
+    public Guid Id { get; } = id;
 
-    public Guid Id { get; }
+    public DateTimeOffset Timestamp { get; } = timestamp;
 
-    public DateTimeOffset Timestamp { get; }
-
-    public string Message { get; }
+    public string Message { get; } = message;
 }

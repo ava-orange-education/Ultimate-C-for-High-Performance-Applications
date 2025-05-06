@@ -2,5 +2,6 @@
 
 public interface ICommunicationHelper
 {
-    Task ExecuteRequestAsync(Func<Task> action);
+    Task ExecuteAsync(Func<Task> action);
+    Task<T> ExecuteAsync<T>(Func<Task<T>> action);
 }

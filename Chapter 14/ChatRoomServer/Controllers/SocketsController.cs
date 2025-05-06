@@ -1,4 +1,5 @@
-﻿using ChatRoomServer.Events;
+﻿using ChatRoomServer.ErrorHandlers;
+using ChatRoomServer.Events;
 using ChatRoomServer.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +20,7 @@ public class SocketsController(ILogger<SocketsController> logger,
         if (userStore.CheckUserExists(userId) == false)
         {
             logger.LogDebug("User not found: {userId}.", userId);
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            return;
+            throw new StatusCodeException(ErrorType.UserNotFound, userId.ToString());
         }
 
         //The cancellation token is unused in a web socket scenario.

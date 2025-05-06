@@ -1,4 +1,5 @@
 ﻿using SharedContracts.Enums;
+using SharedContracts.Messaging;
 using System.Net.WebSockets;
 
 namespace ChatRoomServer.Interfaces;
@@ -9,7 +10,7 @@ public interface IUserSocketService
 
     Task ReceiveMessagesAsync(Guid userId);
 
-    Task QueueMessageAsync<T>(Guid userId, MessageType messageType, T message);
+    Task QueueMessageAsync(Guid userId, MessageType messageType, MessageBase message);
 
     Task CloseAllSockets();
 }

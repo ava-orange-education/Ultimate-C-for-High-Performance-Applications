@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using SharedContracts.Messaging;
+using System.Text.Json.Serialization;
 
 namespace SharedContracts.Notifications;
 
-public class UserLeftChatNotification
+public class UserLeftChatNotification : MessageBase
 {
     [JsonConstructor]
     public UserLeftChatNotification(Guid roomId, Guid userId)

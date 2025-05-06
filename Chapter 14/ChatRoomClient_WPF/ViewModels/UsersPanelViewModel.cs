@@ -74,7 +74,7 @@ public class UsersPanelViewModel : ViewModelBase
         if (SelectedUser != null)
         {
             await communicationHelper
-                .ExecuteRequestAsync(() => chatRoomManagerModel.RemoveUserAsync(chatRoomManagerModel.SelectedChatRoomId!.Value, SelectedUser.Id));
+                .ExecuteAsync(() => chatRoomManagerModel.RemoveUserAsync(chatRoomManagerModel.SelectedChatRoomId!.Value, SelectedUser.Id));
             UsersList.Remove(SelectedUser);
             SelectedUser = null;
             if (UsersList.Count == 0)
@@ -105,7 +105,7 @@ public class UsersPanelViewModel : ViewModelBase
     private async void OnRoomUsersAdded(RoomUsersAddedMessage message)
     {
         await communicationHelper
-            .ExecuteRequestAsync(() => chatRoomManagerModel.AddUsersAsync(message.RoomId, message.Users));
+            .ExecuteAsync(() => chatRoomManagerModel.AddUsersAsync(message.RoomId, message.Users));
 
         foreach (var user in message.Users)
         {

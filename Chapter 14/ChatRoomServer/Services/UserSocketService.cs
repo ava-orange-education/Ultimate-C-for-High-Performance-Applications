@@ -1,6 +1,7 @@
 ﻿using ChatRoomServer.Interfaces;
 using MediatR;
 using SharedContracts.Enums;
+using SharedContracts.Messaging;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 
@@ -34,7 +35,7 @@ public class UserSocketService(ILogger<UserSocketService> logger, IMediator medi
         }
     }
 
-    public async Task QueueMessageAsync<T>(Guid userId, MessageType messageType, T message)
+    public async Task QueueMessageAsync(Guid userId, MessageType messageType, MessageBase message)
     {
         logger.LogDebug("Queueing message for user: {userId}, messageType: {messageType}", userId, messageType);
 

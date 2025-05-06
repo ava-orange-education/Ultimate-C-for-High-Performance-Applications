@@ -2,7 +2,9 @@
 
 public enum MessageType
 {
-    ChatMessage,
+    None,
+    SendChatMessageCommand,
+    ChatMessageReceivedEvent,
     UserJoinedChatNotification,
     UserLeftChatNotification
 }

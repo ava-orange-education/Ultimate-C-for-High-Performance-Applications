@@ -12,6 +12,8 @@ namespace ChatRoomClient.ViewModels.Messages
 
         public void Subscribe<T>(Action<T> action)
         {
+            ArgumentNullException.ThrowIfNull(action, nameof(action));
+
             if (subscribers.TryGetValue(typeof(T), out var actions))
             {
                 actions.Add(action);
@@ -24,6 +26,8 @@ namespace ChatRoomClient.ViewModels.Messages
 
         public void Unsubscribe<T>(Action<T> action)
         {
+            ArgumentNullException.ThrowIfNull(action, nameof(action));
+
             if (subscribers.TryGetValue(typeof(T), out var actions))
             {
                 actions.Remove(action);
@@ -36,13 +40,16 @@ namespace ChatRoomClient.ViewModels.Messages
 
         public void Publish<T>(T message)
         {
-            if (subscribers.TryGetValue(typeof(T), out var actions))
+            ArgumentNullException.ThrowIfNull(message, nameof(message));
+
+            var runtimeType = message.GetType();
+            if (subscribers.TryGetValue(runtimeType, out var actions))
             {
                 foreach (var action in actions)
                 {
                     dispatcher.Invoke(() =>
                     {
-                        ((Action<T>)action)(message);
+                        _ = action.DynamicInvoke(message);
                     });
                 }
             }

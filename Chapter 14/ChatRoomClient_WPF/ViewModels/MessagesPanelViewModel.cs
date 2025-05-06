@@ -12,16 +12,19 @@ public class MessagesPanelViewModel : ViewModelBase
 {
     private readonly IMessenger messenger;
     private readonly IChatRoomManagerModel chatRoomManagerModel;
+    private readonly ICommunicationHelper communicationHelper;
     private readonly ILogger<MessagesPanelViewModel> logger;
     private string? messageInput;
     private bool isMessageInputEnabled;
 
     public MessagesPanelViewModel(IMessenger messenger,
         IChatRoomManagerModel chatRoomManagerModel,
+        ICommunicationHelper communicationHelper,
         ILogger<MessagesPanelViewModel> logger)
     {
         this.messenger = messenger;
         this.chatRoomManagerModel = chatRoomManagerModel;
+        this.communicationHelper = communicationHelper;
         this.logger = logger;
         this.messenger.Subscribe<RoomSelectedMessage>(OnRoomSelected);
         this.messenger.Subscribe<ChatMessageReceivedEvent>(OnChatMessageRecieved);
@@ -114,9 +117,12 @@ public class MessagesPanelViewModel : ViewModelBase
     {
         if (!string.IsNullOrWhiteSpace(MessageInput))
         {
-            var message = await chatRoomManagerModel.AddMessageAsync(
+            var message = await communicationHelper
+                .ExecuteAsync(() => chatRoomManagerModel.AddMessageAsync(
                 chatRoomManagerModel.SelectedChatRoomId!.Value,
-                MessageInput);
+                MessageInput));
+            if (message == null)
+                return;
             MessagesPanel.Add(new UserMessageViewModel(true, chatRoomManagerModel.ChatUser!.UserName, message!));
             MessageInput = string.Empty;
         }

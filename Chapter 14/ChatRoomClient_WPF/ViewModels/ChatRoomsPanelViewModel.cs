@@ -96,7 +96,7 @@ public class ChatRoomsPanelViewModel : ViewModelBase
         IsCreateRoomPopupOpen = false;
 
         await communicationHelper
-            .ExecuteRequestAsync(() => chatRoomManagerModel.AddChatRoomAsync(message.RoomName!, message.RoomId));
+            .ExecuteAsync(() => chatRoomManagerModel.AddChatRoomAsync(message.RoomName!, message.RoomId));
         SelectedChatRoom = newRoom;
     }
 
@@ -159,7 +159,11 @@ public class ChatRoomsPanelViewModel : ViewModelBase
     #region Private Methods
     private async Task LoadChatRoomsAsync()
     {
-        var chatRooms = await chatRoomManagerModel.GetRoomsForUserAsync();
+        var chatRooms = await communicationHelper.ExecuteAsync(chatRoomManagerModel.GetRoomsForUserAsync);
+        if (chatRooms == null)
+        {
+            return;
+        }
         foreach (var room in chatRooms)
         {
             if (ChatRoomsList.Any(r => r.Id == room.RoomId))

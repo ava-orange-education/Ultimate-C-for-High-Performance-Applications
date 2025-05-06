@@ -32,16 +32,8 @@ public class RoomsController(ILogger<RoomsController> logger, IMediator mediator
     {
         logger.LogDebug("AddUserToRoom called with room id: {roomId}, user ids: {userIds}", addUserToRoomCommand.RoomId, string.Join(", ", addUserToRoomCommand.AddedUserIds));
 
-        try
-        {
-            await mediator.Send(addUserToRoomCommand, cancellationToken);
-            return Ok();
-        }
-        catch (InvalidOperationException ex)
-        {
-            logger.LogError(ex, "User not found.");
-            return NotFound($"User not found.");
-        }
+        await mediator.Send(addUserToRoomCommand, cancellationToken);
+        return Ok();
     }
 
     [HttpDelete]

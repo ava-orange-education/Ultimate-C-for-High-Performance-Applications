@@ -22,10 +22,6 @@ public class UsersController(ILogger<UsersController> logger, IMediator mediator
     {
         logger.LogDebug("Login user called with user name: {UserName}", userName);
 
-        if (userName == null)
-        {
-            return BadRequest("User name cannot be null");
-        }
         var userInfo = await mediator.Send(new LoginUserQuery(userName));
         return Ok(userInfo);
     }

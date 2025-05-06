@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using SharedContracts.Messaging;
+using System.Text.Json.Serialization;
 
 namespace SharedContracts.Notifications;
 
-public class UserJoinedChatNotification
+public class UserJoinedChatNotification : MessageBase
 {
     [JsonConstructor]
     public UserJoinedChatNotification(Guid roomId, Guid userId, string userName)

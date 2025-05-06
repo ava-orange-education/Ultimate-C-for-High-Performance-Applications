@@ -16,7 +16,7 @@ public class BroadcastService(ILogger<BroadcastService> logger, IUserSocketServi
         logger.LogDebug("Broadcasting message to users: {userIds}", string.Join(", ", userIds));
         foreach (var userId in userIds)
         {
-            await userSocketService.QueueMessageAsync(userId, MessageType.ChatMessage, message);
+            await userSocketService.QueueMessageAsync(userId, MessageType.ChatMessageReceivedEvent, message);
         }
     }
 
@@ -64,7 +64,7 @@ public class BroadcastService(ILogger<BroadcastService> logger, IUserSocketServi
         foreach (var message in chatMessages)
         {
             await userSocketService.QueueMessageAsync(userId,
-                MessageType.ChatMessage,
+                MessageType.ChatMessageReceivedEvent,
                 message);
         }
     }

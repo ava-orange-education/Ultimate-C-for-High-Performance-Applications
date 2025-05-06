@@ -1,4 +1,4 @@
-﻿using SharedContracts.Events;
+﻿using SharedContracts.Commands;
 
 namespace ChatRoomClient.Interfaces;
 public interface IWebSocketsClient
@@ -7,5 +7,5 @@ public interface IWebSocketsClient
 
     Task ConnectAsync(Guid userId, CancellationToken cancellationToken);
     Task DisconnectAsync(CancellationToken cancellationToken);
-    Task SendMessageAsync(ChatMessageReceivedEvent message, CancellationToken cancellationToken);
+    Task SendMessageAsync(SendChatMessageCommand message, CancellationToken cancellationToken);
 }

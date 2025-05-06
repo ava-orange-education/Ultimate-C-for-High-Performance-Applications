@@ -1,4 +1,5 @@
-﻿using ChatRoomServer.Events;
+﻿using ChatRoomServer.ErrorHandlers;
+using ChatRoomServer.Events;
 using ChatRoomServer.Interfaces;
 using MediatR;
 using SharedContracts.Commands;
@@ -13,13 +14,12 @@ public class AddUserToRoomCommandHandler(IChatRoomStore chatRoomStore, IUserStor
         {
             if (!userStore.CheckUserExists(userId))
             {
-                throw new InvalidOperationException($"User {userId} not found.");
+                throw new StatusCodeException(ErrorType.UserNotFound, userId.ToString());
             }
         }
 
         foreach (var userId in request.AddedUserIds)
         {
-            //TODO: User Joined Chat Event
             chatRoomStore.AddUser(request.RoomId, userId);
 
             var userInfo = userStore.GetUser(userId);

@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using SharedContracts.Commands;
 using SharedContracts.Enums;
 using SharedContracts.Messaging;
 using System.Net.WebSockets;
@@ -34,14 +33,14 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
         GC.SuppressFinalize(this);
     }
 
-    public async Task QueueMessageAsync<T>(MessageType messageType, T message)
+    public async Task QueueMessageAsync(MessageType messageType, MessageBase message)
     {
         if (webSocket.State != WebSocketState.Open)
         {
             throw new InvalidOperationException("WebSocket is not open.");
         }
 
-        var jsonString = SerializeMessage(messageType, message);
+        var jsonString = JsonSerializer.Serialize(message, jsonSerializerOptions);
 
         if (await channel.Writer.WaitToWriteAsync())
         {
@@ -104,25 +103,29 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
         }
         else if (result.MessageType == WebSocketMessageType.Text)
         {
-            var message = DeserializeMessage(Encoding.UTF8.GetString(buffer, 0, result.Count));
+            var json = Encoding.UTF8.GetString(buffer, 0, result.Count);
+            logger.LogDebug("Received message: {json}", json);
+
+            var message = JsonSerializer.Deserialize<MessageBase>(json, jsonSerializerOptions)
+                ?? throw new JsonException("Failed to deserialize message.");
 
             logger.LogDebug("Publishing message: {message}", message);
             await PublishMessageAsync(message);
         }
     }
 
-    private async Task PublishMessageAsync(object? message)
+    private async Task PublishMessageAsync<T>(T message)
     {
         if (message is INotification)
         {
             await mediator.Publish(
-                message!,
+                message,
                 readerCts.Token);
         }
         else if (message is IBaseRequest)
         {
             await mediator.Send(
-                message!,
+                message,
                 readerCts.Token);
         }
         else
@@ -159,53 +162,5 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
             }
         }
 
-    }
-
-    private string SerializeMessage<T>(MessageType messageType, T message)
-    {
-        var envelope = new Envelope<T>(messageType, message);
-
-        var jsonString = JsonSerializer.Serialize(envelope, jsonSerializerOptions);
-        return jsonString;
-    }
-
-    private object? DeserializeMessage(string jsonString)
-    {
-        logger.LogDebug("Deserializing message: {jsonString}", jsonString);
-
-        var document = JsonDocument.Parse(jsonString);
-        if (document.RootElement.TryGetProperty("messageType", out var messageType))
-        {
-            if (Enum.TryParse(messageType.GetString()!, true, out MessageType messageTypeEnum))
-            {
-                var type = GetTypeFromMessageType(messageTypeEnum);
-                if (document.RootElement.TryGetProperty("message", out var message))
-                {
-                    return message.Deserialize(type, jsonSerializerOptions);
-                }
-                else
-                {
-                    logger.LogWarning("Message property not found in JSON: {jsonString}", jsonString);
-                }
-            }
-            else
-            {
-                logger.LogWarning("Failed to parse message type: {messageType}", messageType.GetString());
-            }
-        }
-        else
-        {
-            logger.LogWarning("MessageType not found in JSON: {jsonString}", jsonString);
-        }
-        return default;
-    }
-
-    private static Type GetTypeFromMessageType(MessageType messageType)
-    {
-        return messageType switch
-        {
-            MessageType.ChatMessage => typeof(SendChatMessageCommand),
-            _ => throw new ArgumentOutOfRangeException(nameof(messageType), $"Unhandled message type: {messageType}")
-        };
     }
 }

@@ -3,10 +3,8 @@ using ChatRoomClient.Interfaces;
 using ChatRoomClient.ViewModels.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SharedContracts.Enums;
-using SharedContracts.Events;
+using SharedContracts.Commands;
 using SharedContracts.Messaging;
-using SharedContracts.Notifications;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -71,7 +69,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
         }
     }
 
-    public async Task SendMessageAsync(ChatMessageReceivedEvent message, CancellationToken cancellationToken)
+    public async Task SendMessageAsync(SendChatMessageCommand message, CancellationToken cancellationToken)
     {
         if (IsOpen)
         {
@@ -80,8 +78,7 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
                 throw new InvalidOperationException("Channel is completed. Cannot send messages.");
             }
 
-            var envelope = new Envelope<ChatMessageReceivedEvent>(MessageType.ChatMessage, message);
-            var json = JsonSerializer.Serialize(envelope, jsonSerializerOptions);
+            var json = JsonSerializer.Serialize<MessageBase>(message, jsonSerializerOptions);
             logger.LogDebug("Sending message: {Message}", json);
             if (await channel.Writer.WaitToWriteAsync(cancellationToken))
             {
@@ -117,8 +114,11 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
                 {
                     var message = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
                     logger.LogDebug("Received message: {Message}", message);
-                    var messageObj = DeserializeMessage(message);
-                    PublishMessage(messageObj);
+
+                    var messageObj = JsonSerializer.Deserialize<MessageBase>(message, jsonSerializerOptions) ??
+                        throw new JsonException("Failed to deserialize message.");
+                    logger.LogDebug("Deserialized message type: {Message}", messageObj.GetType());
+                    messenger.Publish(messageObj);
                 }
                 else
                 {
@@ -133,68 +133,6 @@ public class WebSocketsClient(ILogger<WebSocketsClient> logger,
             {
                 logger.LogError(ex, "Error receiving message: {Message}", ex.Message);
             }
-        }
-    }
-
-    private object? DeserializeMessage(string jsonString)
-    {
-        var document = JsonDocument.Parse(jsonString);
-        if (document.RootElement.TryGetProperty("messageType", out var messageType))
-        {
-            if (Enum.TryParse(messageType.GetString()!, true, out MessageType messageTypeEnum))
-            {
-                if (document.RootElement.TryGetProperty("message", out var message))
-                {
-                    logger.LogDebug("Deserializing message of type: {MessageType}", messageTypeEnum);
-                    return message.Deserialize(GetTypeFromMessageType(messageTypeEnum), jsonSerializerOptions);
-                }
-                else
-                {
-                    logger.LogError("Message property not found in JSON: {jsonString}", jsonString);
-                }
-            }
-            else
-            {
-                logger.LogError("Failed to parse message type: {MessageType}", messageType.GetString());
-            }
-        }
-        else
-        {
-            logger.LogError("MessageType not found in JSON: {jsonString}", jsonString);
-        }
-        return default;
-    }
-
-    private static Type GetTypeFromMessageType(MessageType messageType)
-    {
-        return messageType switch
-        {
-            MessageType.ChatMessage => typeof(ChatMessageReceivedEvent),
-            MessageType.UserJoinedChatNotification => typeof(UserJoinedChatNotification),
-            MessageType.UserLeftChatNotification => typeof(UserLeftChatNotification),
-            _ => throw new ArgumentOutOfRangeException(nameof(messageType), $"Unhandled message type: {messageType}")
-        };
-    }
-
-    private void PublishMessage(object? message)
-    {
-        if (message == null)
-        {
-            logger.LogError("Received null message.");
-            return;
-        }
-
-        switch (message)
-        {
-            case ChatMessageReceivedEvent chatMessage:
-                messenger.Publish(chatMessage);
-                break;
-            case UserJoinedChatNotification userJoined:
-                messenger.Publish(userJoined);
-                break;
-            case UserLeftChatNotification userLeft:
-                messenger.Publish(userLeft);
-                break;
         }
     }
 

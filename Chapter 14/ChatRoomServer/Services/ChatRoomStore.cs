@@ -1,4 +1,5 @@
-﻿using ChatRoomServer.Interfaces;
+﻿using ChatRoomServer.ErrorHandlers;
+using ChatRoomServer.Interfaces;
 using SharedContracts;
 using SharedContracts.Commands;
 using System.Collections.Concurrent;
@@ -24,7 +25,7 @@ public class ChatRoomStore : IChatRoomStore
         }
         else
         {
-            throw new InvalidOperationException($"Room id not found during add user: {roomId}");
+            throw new StatusCodeException(ErrorType.RoomIdNotFound, roomId.ToString());
         }
     }
 
@@ -39,7 +40,7 @@ public class ChatRoomStore : IChatRoomStore
             }
             return true;
         }
-        throw new InvalidOperationException($"Room id not found during remove user: {roomId}");
+        throw new StatusCodeException(ErrorType.RoomIdNotFound, roomId.ToString());
     }
 
     public IEnumerable<ChatRoom> GetAllRooms()
@@ -58,7 +59,7 @@ public class ChatRoomStore : IChatRoomStore
         {
             return chatRoom.GetMessages();
         }
-        throw new InvalidOperationException($"Room id not found during get messages: {roomId}");
+        throw new StatusCodeException(ErrorType.RoomIdNotFound, roomId.ToString());
     }
 
     public IEnumerable<Guid> GetRoomUsers(Guid roomId, Guid exceptUserId)
@@ -67,7 +68,7 @@ public class ChatRoomStore : IChatRoomStore
         {
             return chatRoom.GetUserIds(exceptUserId);
         }
-        throw new InvalidOperationException($"Room id not found during get room users: {roomId}");
+        throw new StatusCodeException(ErrorType.RoomIdNotFound, roomId.ToString());
     }
 
     public bool StoreMessage(SendChatMessageCommand message)
@@ -76,6 +77,6 @@ public class ChatRoomStore : IChatRoomStore
         {
             return chatRoom.StoreMessage(message);
         }
-        throw new InvalidOperationException($"Room id not found during store message: {message.RoomId}");
+        throw new StatusCodeException(ErrorType.RoomIdNotFound, message.RoomId.ToString());
     }
 }
