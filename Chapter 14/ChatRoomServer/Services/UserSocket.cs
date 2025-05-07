@@ -136,7 +136,8 @@ internal class UserSocket(ILogger<UserSocketService> logger, WebSocket webSocket
 
     public async Task CloseSocketConnectionAsync()
     {
-        if (webSocket.State == WebSocketState.CloseReceived)
+        if (webSocket.State == WebSocketState.Open ||
+            webSocket.State == WebSocketState.CloseReceived)
         {
             readerCts.Cancel();
             await StopSendingAsync();
