@@ -95,11 +95,7 @@ public class ChatRoomManagerModel(ILogger<ChatRoomManagerModel> logger,
 
             await webSocketsClient.SendMessageAsync(sendChatMessageCommand, CancellationToken.None);
 
-            var chatMessageReceived = new ChatMessageReceivedEvent(sendChatMessageCommand.User,
-                sendChatMessageCommand.RoomId,
-                sendChatMessageCommand.Id,
-                sendChatMessageCommand.Timestamp,
-                sendChatMessageCommand.Message);
+            var chatMessageReceived = ChatMessageReceivedEvent.FromCommand(sendChatMessageCommand);
 
             room.AddMessage(chatMessageReceived);
             return chatMessageReceived;

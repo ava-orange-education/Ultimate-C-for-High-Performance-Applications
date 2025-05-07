@@ -29,6 +29,13 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+//Shut down all connections when the service is stopped
+app.Lifetime.ApplicationStopping.Register(async () =>
+{
+    var userSocketService = app.Services.GetRequiredService<IUserSocketService>();
+    await userSocketService.CloseAllSocketsAsync();
+});
+
 app.UseWebSockets();
 app.UseRouting();
 app.MapControllers();

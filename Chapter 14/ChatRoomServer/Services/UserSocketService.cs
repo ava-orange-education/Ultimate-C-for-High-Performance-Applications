@@ -24,7 +24,7 @@ public class UserSocketService(ILogger<UserSocketService> logger, IMediator medi
         sockets.TryAdd(userId, userSocket);
     }
 
-    public async Task CloseAllSockets()
+    public async Task CloseAllSocketsAsync()
     {
         logger.LogDebug("Closing all sockets");
 

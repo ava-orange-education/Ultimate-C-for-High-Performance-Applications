@@ -12,5 +12,5 @@ public interface IUserSocketService
 
     Task QueueMessageAsync(Guid userId, MessageType messageType, MessageBase message);
 
-    Task CloseAllSockets();
+    Task CloseAllSocketsAsync();
 }

@@ -11,11 +11,7 @@ public class SendChatMessageCommandHandler(IChatRoomStore chatRoomStore, IMediat
     {
         if (chatRoomStore.StoreMessage(request))
         {
-            var chatMessageReceivedEvent = new ChatMessageReceivedEvent(request.User,
-                request.RoomId,
-                request.Id,
-                request.Timestamp,
-                request.Message);
+            var chatMessageReceivedEvent = ChatMessageReceivedEvent.FromCommand(request);
             await mediator.Publish(chatMessageReceivedEvent, cancellationToken);
         }
         return Unit.Value;
