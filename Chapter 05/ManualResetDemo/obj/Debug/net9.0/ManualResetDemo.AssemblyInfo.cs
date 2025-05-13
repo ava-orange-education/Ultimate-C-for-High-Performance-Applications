@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ManualResetDemo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d354889f4ac45f656ff3b0fd829db623f5ae334b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd8805c7b629fcbac4f317745c016d79949a3c27")]
 [assembly: System.Reflection.AssemblyProductAttribute("ManualResetDemo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ManualResetDemo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
