@@ -1,4 +1,6 @@
-﻿namespace ThreadClassDemo
+﻿using System.Diagnostics;
+
+namespace ThreadClassDemo
 {
     internal class Program
     {
@@ -15,9 +17,10 @@
     {
         public static void CountTo(int number)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             for (int i = 1; i < number + 1; i++)
             {
-                Console.WriteLine($"Count: {i}");
+                Console.WriteLine($"Count: {i} (Elapsed seconds: {sw.Elapsed.Seconds})");
                 Thread.Sleep(TimeSpan.FromSeconds(1));
             }
         }
