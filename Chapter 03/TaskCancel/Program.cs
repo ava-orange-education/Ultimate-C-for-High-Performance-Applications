@@ -1,4 +1,7 @@
 ﻿
+using System.Threading;
+using System.Threading.Tasks;
+
 var cts = new CancellationTokenSource();
 var token = cts.Token;
 
@@ -18,3 +21,4 @@ Thread.Sleep(4500);
 cts.Cancel();
 task.Wait();
 cts.Dispose();
+Console.Read();
