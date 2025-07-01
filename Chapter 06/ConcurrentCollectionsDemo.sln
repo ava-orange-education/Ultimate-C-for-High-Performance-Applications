@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentBagDemo", "Concur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentDictionaryDemo", "ConcurrentDictionaryDemo\ConcurrentDictionaryDemo.csproj", "{D12B1063-9105-46F6-B393-3756F90BBF47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDAddOrUpdateDemo", "CDAddOrUpdateDemo\CDAddOrUpdateDemo.csproj", "{21903558-a17a-4058-9d84-ae3b8c01c01e}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentQueueDemo", "ConcurrentQueueDemo\ConcurrentQueueDemo.csproj", "{24B7A8AF-DAD8-4CDB-92F1-913E42F25E16}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConcurrentStackDemo", "ConcurrentStackDemo\ConcurrentStackDemo.csproj", "{81860F5C-939E-4BB9-8C4D-B44A9F43D5E9}"
@@ -33,6 +35,10 @@ Global
 		{D12B1063-9105-46F6-B393-3756F90BBF47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D12B1063-9105-46F6-B393-3756F90BBF47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D12B1063-9105-46F6-B393-3756F90BBF47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21903558-a17a-4058-9d84-ae3b8c01c01e}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21903558-a17a-4058-9d84-ae3b8c01c01e}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21903558-a17a-4058-9d84-ae3b8c01c01e}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21903558-a17a-4058-9d84-ae3b8c01c01e}.Release|Any CPU.Build.0 = Release|Any CPU
 		{24B7A8AF-DAD8-4CDB-92F1-913E42F25E16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{24B7A8AF-DAD8-4CDB-92F1-913E42F25E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24B7A8AF-DAD8-4CDB-92F1-913E42F25E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
