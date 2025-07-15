@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SequentialDemo", "Sequentia
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeDataSetDemo", "LargeDataSetDemo\LargeDataSetDemo.csproj", "{AE838AFA-4FFB-4BB7-AF08-C3CABD0F3351}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetryFaultsDemo", "RetryFaultsDemo\RetryFaultsDemo.csproj", "{05691772-9E72-4E48-A70C-0D35C6D4EC79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
